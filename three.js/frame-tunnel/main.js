@@ -8,9 +8,6 @@ let camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHei
 // let camera = new THREE.OrthographicCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 let renderer = new THREE.WebGLRenderer();
-// can also set to window.innerWidth/2, window.innerHeight/2 for performance
-// enhancements
-// can also have false as a third argument to render at half resolution
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
