@@ -48,7 +48,6 @@ for (let chunk = 1; chunk <= tunnelChunkDepth; chunk++) {
   for (let i = 0; i < cubesPerChunk; i++) {
     object = new THREE.Mesh(cubeGeometry, cubeMaterial);
     point = getRandomPointOnCircle(innerRad);
-    console.log(point)
     object.position.x = point.x;
     object.position.y = point.y;
     object.position.z = 20 - chunk * (-Math.random() * cubeSpace);
@@ -56,7 +55,6 @@ for (let chunk = 1; chunk <= tunnelChunkDepth; chunk++) {
     object.rotation.x = getRandomRadians();
     object.rotation.y = getRandomRadians();
 
-    console.log(object.position)
     cubes.push(object);
     scene.add(object);
   }
@@ -80,7 +78,6 @@ scene.add(light);
 
 // add fog
 scene.fog = new THREE.Fog(0x000000, 1, 60);
-console.log(scene);
 
 
 // position camera
