@@ -11,13 +11,15 @@ class RaceParser {
   parseMessage(message) {
     let messageJSON = JSON.parse(message);
 
-    console.log(messageJSON);
     switch(messageJSON.type) {
       case 'RaceInfo':
         this.view.loadRaceInfo(messageJSON.obj);
         break;
       case 'ParticipantBox':
         this.view.loadParticipants(messageJSON.obj);
+        break;
+      case 'TelemetryMessage':
+        this.view.telemetryMessage(messageJSON.obj);
         break;
     }
   }
