@@ -306,9 +306,9 @@ class RaceView {
   }
 
   fillInRaceTrack(innerSegments, outerSegments) {
-    let turnTriangles = 10;
+    let turnTriangles = 15;
     let straightTriangles = 2;
-    let turnInc = 1 / turnTriangles / 2;
+    let turnInc = 1 / turnTriangles;
 
     for (let property in innerSegments) {
       let inner = innerSegments[property];
