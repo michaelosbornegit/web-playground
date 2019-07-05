@@ -3,5 +3,3 @@
 
 # ignore everything in any dist folder
 **/dist/*
-# other than index.html
-!**/dist/index.html
