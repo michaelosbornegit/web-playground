@@ -23,10 +23,9 @@ module.exports = {
 
     // cleanup everything thats not related to development in the root directory for
     // deploying to github pages. (static files must be in root directory for gh pages)
-    // new WebpackCleanupPlugin({
-    //   exclude: [path.join(__dirname, '../dev/')],
-    //   preview: true,
-    // }),
+    new WebpackCleanupPlugin({
+      exclude: ['dev/**', '.gitignore'],
+    }),
   ],
   output: {
     filename: '[name].bundle.js',
