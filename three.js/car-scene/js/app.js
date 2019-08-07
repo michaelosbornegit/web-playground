@@ -1,5 +1,6 @@
 /**
  * @author mrdoob / http://mrdoob.com/
+ * @author Michael Osborne
  */
 
 var APP = {
@@ -8,6 +9,11 @@ var APP = {
 
 		var loader = new THREE.ObjectLoader();
 		var camera, scene, renderer;
+		var physics;
+
+		// TEMP FOR TESTING, ONLY ALLOWS ONE SHAPE
+		// TODO: create data structures to hold references to the shapes and physics bodies for easy updating!
+		let body, shape;
 
 		var events = {};
 
@@ -36,7 +42,7 @@ var APP = {
 			this.setCamera( loader.parse( json.camera ) );
 
 			events = {
-				init: [],
+				init: [initCannon],
 				start: [],
 				stop: [],
 				keydown: [],
@@ -47,7 +53,7 @@ var APP = {
 				touchstart: [],
 				touchend: [],
 				touchmove: [],
-				update: []
+				update: [updatePhysics]
 			};
 
 			var scriptWrapParams = 'player,renderer,scene,camera';
@@ -174,6 +180,55 @@ var APP = {
 
 			prevTime = time;
 
+		}
+
+		// borrowed from the cannonjs documentation threejs example
+		function initCannon() {
+			physics = new CANNON.World();
+			physics.gravity.set(0,-9.8,0);
+			physics.solver.iterations = 10;
+
+			// find the shapes we want to add physics to
+			this.physicsObjectsInfo = [
+				{
+					name: 'carChassis',
+					geometry: CANNON.Box,
+				},
+			];
+
+			for (let physicsObjectInfo of this.physicsObjectsInfo) {
+				shape = scene.getObjectByName(physicsObjectInfo.name);
+				console.log(shape);
+				
+				
+
+				let physShape = new physicsObjectInfo.geometry(new CANNON.Vec3(shape.geometry.scale.x, shape.geometry.scale.y, shape.geometry.scale.z));
+				body = new CANNON.Body({
+					mass: 1,
+				});
+				body.position.copy(shape.position);
+				
+				body.addShape(physShape);
+				physics.addBody(body);
+			}
+			
+			// let shape = new CANNON.Box(new CANNON.Vec3(1,1,1));
+			// body = new CANNON.Body({
+			//   mass: 1
+			// });
+			// body.addShape(shape);
+			// body.angularVelocity.set(0,10,0);
+			// body.angularDamping = 0.5;
+			// world.addBody(body);
+		}
+
+		function updatePhysics() {
+			physics.step(1/60);
+
+			shape.position.copy(body.position);
+			shape.quaternion.copy(body.quaternion);
+			console.log(body.position);
+			
 		}
 
 		this.play = function () {
