@@ -9,11 +9,10 @@ var APP = {
 
 		var loader = new THREE.ObjectLoader();
 		var camera, scene, renderer;
-		var physics;
+		let physics;
 
-		// TEMP FOR TESTING, ONLY ALLOWS ONE SHAPE
-		// TODO: create data structures to hold references to the shapes and physics bodies for easy updating!
-		let body, shape;
+		// keep track of bodies and shapes for updating physics
+		let bodyShapes = [];
 
 		var events = {};
 
@@ -185,7 +184,7 @@ var APP = {
 		// borrowed from the cannonjs documentation threejs example
 		function initCannon() {
 			physics = new CANNON.World();
-			physics.gravity.set(0,-9.8,0);
+			physics.gravity.set(0,-10,0);
 			physics.solver.iterations = 10;
 
 			// find the shapes we want to add physics to
@@ -193,23 +192,76 @@ var APP = {
 				{
 					name: 'carChassis',
 					geometry: CANNON.Box,
+					mass: 1
+				},
+				{
+					name: 'wheelLF',
+					geometry: CANNON.Cylinder,
+					mass: 1
+				},
+				{
+					name: 'wheelRF',
+					geometry: CANNON.Cylinder,
+					mass: 1
+				},
+				{
+					name: 'wheelRR',
+					geometry: CANNON.Cylinder,
+					mass: 1
+				},
+				{
+					name: 'wheelLR',
+					geometry: CANNON.Cylinder,
+					mass: 1
+				},
+				{
+					name: 'ground',
+					geometry: CANNON.Plane,
+					mass: 0
 				},
 			];
 
 			for (let physicsObjectInfo of this.physicsObjectsInfo) {
-				shape = scene.getObjectByName(physicsObjectInfo.name);
+				let shape = scene.getObjectByName(physicsObjectInfo.name);
+				// console.log(shape);
+
+				let physShape;
 				console.log(shape);
-				
+				// using scale because thats how I sized things in the online threejs editor, ideally these would be based on the actual sizes
+				if (physicsObjectInfo.geometry === CANNON.Box) {					
+					physShape = new physicsObjectInfo.geometry(new CANNON.Vec3(shape.scale.x, shape.scale.y, shape.scale.z));
+					shape.position.y += 2;
+				} else if (physicsObjectInfo.geometry === CANNON.Cylinder) {
+					physShape = new physicsObjectInfo.geometry(shape.scale.x * shape.geometry.parameters.radiusTop, shape.scale.x * shape.geometry.parameters.radiusBottom, shape.scale.z * shape.geometry.parameters.height, shape.geometry.parameters.radialSegments);
+				} else if (physicsObjectInfo.geometry === CANNON.Plane) {
+					physShape = new physicsObjectInfo.geometry();
+				}
+
+				console.log(physShape);
 				
 
-				let physShape = new physicsObjectInfo.geometry(new CANNON.Vec3(shape.geometry.scale.x, shape.geometry.scale.y, shape.geometry.scale.z));
-				body = new CANNON.Body({
-					mass: 1,
+				let body = new CANNON.Body({
+					mass: physicsObjectInfo.mass,
 				});
-				body.position.copy(shape.position);
-				
 				body.addShape(physShape);
+				body.quaternion.copy(shape.quaternion);
+				body.position.copy(shape.position);
+				body.angularVelocity.z = -10
+				// shape.quaternion.copy(body.quaternion);
+				// shape.position.copy(body.position);
+
+				console.log(body);
+				
+				// body.scale.copy(shape.geometry.scale);
+				
+				
 				physics.addBody(body);
+
+				// add both to our tracking array to keep track of later
+				bodyShapes.push({
+					body: body,
+					shape: shape
+				})
 			}
 			
 			// let shape = new CANNON.Box(new CANNON.Vec3(1,1,1));
@@ -222,12 +274,17 @@ var APP = {
 			// world.addBody(body);
 		}
 
-		function updatePhysics() {
+		function updatePhysics(args) {
+			
 			physics.step(1/60);
 
-			shape.position.copy(body.position);
-			shape.quaternion.copy(body.quaternion);
-			console.log(body.position);
+			bodyShapes.forEach(((bodyShape) => {
+				bodyShape.shape.position.copy(bodyShape.body.position);
+				bodyShape.shape.quaternion.copy(bodyShape.body.quaternion)
+			}));
+			// shape.position.copy(body.position);
+			// shape.quaternion.copy(body.quaternion);
+			// console.log(body.position);
 			
 		}
 
